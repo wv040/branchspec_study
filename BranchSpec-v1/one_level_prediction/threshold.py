@@ -3,11 +3,13 @@ import progressbar
 from time import sleep
 import difflib
 import json
+import re
 
 
 class Threshold:
     def __init__(self, file_path):
         self.path = file_path
+        self.results = list()
 
     def read_file_contents(self, path = None):
         data = None
@@ -36,10 +38,6 @@ class Threshold:
 
     def find_threshold(self, lower_limit, upper_limit, line_number, line_content, run_name):
         thresholds = range(lower_limit, upper_limit)
-        work_units = upper_limit - lower_limit
-        print('work_units:', work_units)
-        # bar = progressbar.ProgressBar(max_value=work_units)
-        bar_count = 0
         for threshold in thresholds:
             self.change_threshold(line_number, line_content, threshold)
             process = Popen(['rm', run_name], stdout=PIPE, stderr=PIPE)
@@ -47,10 +45,41 @@ class Threshold:
             sleep(3)
             process = Popen(['taskset', '0x02', './' + run_name], stdout=PIPE, stderr=PIPE)
             stdout, stderr = process.communicate()
-            print(stdout)
-            print(stderr)
-            # bar.update(bar_count)
-            # bar_count += 1
+            # print(stdout)
+            # print(stderr)
+            decoded_output = self.decode_stdout(stdout)
+            self.get_results_from_stdout(threshold, decoded_output)
+        self.save_results_to_file(run_name)
+
+
+    def decode_stdout(self, stdout):
+        stdout = stdout.decode('utf-8')
+        lines = stdout.split('\n')
+        return lines
+
+    def get_results_from_stdout(self, threshold, decoded_output):
+        result = {'threshold': threshold}
+        for line in decoded_output:
+            if 'Total bit sent:' in line:
+                values = re.findall(r'\d+', line)
+                if len(values) == 3:
+                    result['bits_sent'] = values[0]
+                    result['total_errors'] = values[1]
+                    result['stdout_threshold'] = values[2]
+                else:
+                    return None
+        print(result)
+        self.results.append(result)
+
+    def save_results_to_file(self, program_name):
+        results = sorted(self.results, key=lambda d: d['total_errors'])
+        results_string = list()
+        for result in results:
+            results_string.append(str(result))
+        results_string = '\n'.join(results_string)
+        with open('{}_results.txt'.format(program_name), 'w') as file:
+            file.write(results_string)
+
 
 
 def main():
