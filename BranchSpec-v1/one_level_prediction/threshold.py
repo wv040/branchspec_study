@@ -52,10 +52,10 @@ class Threshold:
             # print(stderr)
             decoded_output = self.decode_stdout(stdout)
             self.get_results_from_stdout(threshold, decoded_output)
-            print('Run {} execution time: {} seconds'.format(count, time.time() - start))
+            print('Run {} execution time: {} seconds'.format(count, round(time.time() - start, 2)))
             count += 1
             start = time.time()
-        self.save_results_to_file(run_name)
+        self.save_results_to_file(run_name + '_' + str(lower_limit) + '-' + str(upper_limit))
 
 
     def decode_stdout(self, stdout):
@@ -87,11 +87,22 @@ class Threshold:
             file.write(results_string)
 
 
-
 def main():
+    while True:
+        try:
+            lower_limit = input('Please enter a lower bound (inclusive) for threshold values:\n')
+            upper_limit = input('Please enter an upper bound (exclusive) for threshold values:\n')
+            lower_limit = int(lower_limit)
+            upper_limit = int(upper_limit)
+            break
+        except:
+            print('Invalid Inputs')
+    print('Lower Limit: ', lower_limit)
+    print('Upper Limit: ', upper_limit)
+    print('--- Beginning Testing ---\n')
     thresh = Threshold('poc_v1.c')
     line = '  THRESHOLD = {}; // Setup the threshold latency properly \n'
-    thresh.find_threshold(75, 256, 36, line, 'poc_v1')
+    thresh.find_threshold(lower_limit, upper_limit, 36, line, 'poc_v1')
 
 
 if __name__ == '__main__':
