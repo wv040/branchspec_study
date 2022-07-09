@@ -38,7 +38,7 @@ class Threshold:
         thresholds = range(lower_limit, upper_limit)
         work_units = upper_limit - lower_limit
         print('work_units:', work_units)
-        bar = progressbar.ProgressBar(max_value=work_units)
+        # bar = progressbar.ProgressBar(max_value=work_units)
         bar_count = 0
         for threshold in thresholds:
             self.change_threshold(line_number, line_content, threshold)
@@ -49,8 +49,8 @@ class Threshold:
             stdout, stderr = process.communicate()
             print(stdout)
             print(stderr)
-            bar.update(bar_count)
-            bar_count += 1
+            # bar.update(bar_count)
+            # bar_count += 1
 
 
 def main():
