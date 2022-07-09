@@ -1,3 +1,4 @@
+import time
 from subprocess import Popen, PIPE
 import progressbar
 from time import sleep
@@ -38,6 +39,8 @@ class Threshold:
 
     def find_threshold(self, lower_limit, upper_limit, line_number, line_content, run_name):
         thresholds = range(lower_limit, upper_limit)
+        count = 0
+        start = time.time()
         for threshold in thresholds:
             self.change_threshold(line_number, line_content, threshold)
             process = Popen(['rm', run_name], stdout=PIPE, stderr=PIPE)
@@ -49,6 +52,9 @@ class Threshold:
             # print(stderr)
             decoded_output = self.decode_stdout(stdout)
             self.get_results_from_stdout(threshold, decoded_output)
+            print('Run {} execution time: {} seconds'.format(count, time.time() - start))
+            count += 1
+            start = time.time()
         self.save_results_to_file(run_name)
 
 
@@ -85,7 +91,7 @@ class Threshold:
 def main():
     thresh = Threshold('poc_v1.c')
     line = '  THRESHOLD = {}; // Setup the threshold latency properly \n'
-    thresh.find_threshold(180, 182, 36, line, 'poc_v1')
+    thresh.find_threshold(75, 256, 36, line, 'poc_v1')
 
 
 if __name__ == '__main__':
