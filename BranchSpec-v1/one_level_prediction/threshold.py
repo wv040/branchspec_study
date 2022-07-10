@@ -37,7 +37,7 @@ class Threshold:
         data[line_number] = line.format(value)
         self.write_file_contents(data)
 
-    def find_threshold(self, lower_limit, upper_limit, line_number, line_content, run_name):
+    def find_threshold(self, lower_limit, upper_limit, line_number, line_content, run_name, note=''):
         thresholds = range(lower_limit, upper_limit)
         count = 0
         start = time.time()
@@ -55,7 +55,7 @@ class Threshold:
             print('Run {} execution time: {} seconds'.format(count, round(time.time() - start, 2)))
             count += 1
             start = time.time()
-        self.save_results_to_file(run_name + '_' + str(lower_limit) + '-' + str(upper_limit))
+        self.save_results_to_file(note + run_name + '_' + str(lower_limit) + '-' + str(upper_limit))
 
 
     def decode_stdout(self, stdout):
@@ -94,6 +94,7 @@ def main():
             run_name = input('Please enter the compiled file name:\n')
             lower_limit = input('Please enter a lower bound (inclusive) for threshold values:\n')
             upper_limit = input('Please enter an upper bound (exclusive) for threshold values:\n')
+            note = input('Add note to filename (press enter to skip):\n')
             lower_limit = int(lower_limit)
             upper_limit = int(upper_limit)
             break
@@ -104,7 +105,7 @@ def main():
     print('--- Beginning Testing ---\n')
     thresh = Threshold(file_name)
     line = '  THRESHOLD = {}; // Setup the threshold latency properly \n'
-    thresh.find_threshold(lower_limit, upper_limit, 36, line, run_name)
+    thresh.find_threshold(lower_limit, upper_limit, 36, line, run_name, note)
 
 
 if __name__ == '__main__':
