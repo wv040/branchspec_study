@@ -90,6 +90,8 @@ class Threshold:
 def main():
     while True:
         try:
+            file_name = input('Please enter the file name:\n')
+            run_name = input('Please enter the compiled file name:\n')
             lower_limit = input('Please enter a lower bound (inclusive) for threshold values:\n')
             upper_limit = input('Please enter an upper bound (exclusive) for threshold values:\n')
             lower_limit = int(lower_limit)
@@ -100,9 +102,9 @@ def main():
     print('Lower Limit: ', lower_limit)
     print('Upper Limit: ', upper_limit)
     print('--- Beginning Testing ---\n')
-    thresh = Threshold('poc_v1.c')
+    thresh = Threshold(file_name)
     line = '  THRESHOLD = {}; // Setup the threshold latency properly \n'
-    thresh.find_threshold(lower_limit, upper_limit, 36, line, 'poc_v1')
+    thresh.find_threshold(lower_limit, upper_limit, 36, line, run_name)
 
 
 if __name__ == '__main__':
